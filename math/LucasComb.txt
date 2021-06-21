@@ -1,0 +1,26 @@
+func LucasComb(n, k, p int, com [][]int) int {
+	ret := 1
+	for n > 0 {
+		ni := n % p
+		ki := k % p
+		ret *= com[ni][ki]
+		ret %= p
+		n /= p
+		k /= p
+	}
+	return ret
+}
+func CalcComb(p int) [][]int {
+	com := make([][]int, p)
+	for i := 0; i < p; i++ {
+		com[i] = make([]int, p)
+	}
+	com[0][0] = 1
+	for i := 1; i < p; i++ {
+		com[i][0] = 1
+		for j := i; j > 0; j-- {
+			com[i][j] = (com[i-1][j-1] + com[i-1][j]) % p
+		}
+	}
+	return com
+}

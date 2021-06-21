@@ -1,0 +1,61 @@
+import errors
+
+type Deque struct {
+	l []int
+	r []int
+}
+
+func newDeque(capa int) *Deque {
+	d := new(Deque)
+	d.l = make([]int, 0, capa)
+	d.r = make([]int, 0, capa)
+	return d
+}
+func (d *Deque) LPush(x int) {
+	d.l = append(d.l, x)
+}
+func (d *Deque) RPush(x int) {
+	d.r = append(d.r, x)
+}
+func (d *Deque) LPop() (int, error) {
+	if len(d.l) != 0 {
+		x := d.l[len(d.l)-1]
+		d.l = d.l[:len(d.l)-1]
+		return x, nil
+	} else if len(d.r) != 0 {
+		x := d.r[0]
+		d.r = d.r[1:]
+		return x, nil
+	}
+	return 0, errors.New("empty deque")
+}
+func (d *Deque) RPop() (int, error) {
+	if len(d.r) != 0 {
+		x := d.r[len(d.r)-1]
+		d.r = d.r[:len(d.r)-1]
+		return x, nil
+	} else if len(d.l) != 0 {
+		x := d.l[0]
+		d.l = d.l[1:]
+		return x, nil
+	}
+	return 0, errors.New("empty deque")
+}
+func (d *Deque) lPop() int {
+	x, _ := d.LPop()
+	return x
+}
+func (d *Deque) rPop() int {
+	x, _ := d.RPop()
+	return x
+}
+func (d *Deque) Len() int {
+	return len(d.l) + len(d.r)
+}
+func (d *Deque) Get(x int) int {
+	if x < len(d.l) {
+		return d.l[len(d.l)-1-x]
+	} else {
+		return d.r[x-len(d.r)]
+	}
+}

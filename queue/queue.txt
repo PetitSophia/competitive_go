@@ -1,0 +1,12 @@
+q := make([]int, 0)
+push := func(v int) {
+    q = append(q, v)
+}
+pop := func() int {
+    res := q[0]
+    q = q[1:]
+    return res
+}
+empty := func() bool {
+    return len(q) == 0
+}

@@ -1,0 +1,13 @@
+st := make([]int, 0)
+push := func(v int) {
+    st = append(st, v)
+}
+pop := func() int {
+    n := len(st)-1
+    res := st[n]
+    st = st[:n]
+    return res
+}
+empty := func() bool {
+    return len(st) == 0
+}

@@ -1,0 +1,11 @@
+func PascalTriangle(n int) [][]int {
+	pt := make([][]int, n+1)
+	for i := 0; i < n+1; i++ {
+		pt[i] = make([]int, i+1)
+		pt[i][0], pt[i][i] = 1, 1
+		for j := 1; j < i; j++ {
+			pt[i][j] = pt[i-1][j-1] + pt[i-1][j]
+		}
+	}
+	return pt
+}

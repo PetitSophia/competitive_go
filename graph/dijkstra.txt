@@ -1,0 +1,81 @@
+import "container/heap"
+
+type Edge struct {
+	to   int
+	cost int
+}
+type Node struct {
+	cost int
+	from int
+}
+type PQEdge struct {
+	to    int
+	cost  int
+	index int
+}
+type PriorityQueue []*PQEdge
+
+var PQINF int = int(1e+18)
+
+func dijkstra(s int, edges [][]Edge) []Node {
+	n := len(edges)
+	nodes := make([]Node, n)
+	for i := 0; i < n; i++ {
+		nodes[i].cost = PQINF
+		nodes[i].from = -1
+	}
+	nodes[s].cost = 0
+	pq := make(PriorityQueue, 0)
+	heap.Init(&pq)
+	heap.Push(&pq, &PQEdge{to: s, cost: 0})
+	for pq.Len() > 0 {
+		edge := heap.Pop(&pq).(*PQEdge)
+		if nodes[edge.to].cost < edge.cost {
+			continue
+		}
+		for _, e := range edges[edge.to] {
+			v := e.to
+			c := nodes[edge.to].cost + e.cost
+			if nodes[v].cost > c {
+				nodes[v].cost = c
+				nodes[v].from = edge.to
+				node := &PQEdge{
+					to:   v,
+					cost: c,
+				}
+				heap.Push(&pq, node)
+			}
+		}
+	}
+	return nodes
+}
+
+func (pq PriorityQueue) Len() int { return len(pq) }
+func (pq PriorityQueue) Less(i, j int) bool {
+	return pq[i].cost < pq[j].cost
+}
+func (pq PriorityQueue) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+	pq[i].index = i
+	pq[j].index = j
+}
+func (pq *PriorityQueue) Push(x interface{}) {
+	n := len(*pq)
+	edge := x.(*PQEdge)
+	edge.index = n
+	*pq = append(*pq, edge)
+}
+func (pq *PriorityQueue) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	edge := old[n-1]
+	old[n-1] = nil
+	edge.index = -1
+	*pq = old[0 : n-1]
+	return edge
+}
+func (pq *PriorityQueue) update(edge *PQEdge, to int, cost int) {
+	edge.to = to
+	edge.cost = cost
+	heap.Fix(pq, edge.index)
+}

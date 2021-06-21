@@ -1,0 +1,98 @@
+import math/bits
+
+type LCA struct {
+	parent    []int
+	ancestors [][]int
+	dist      []int
+}
+
+func newLCA(s int, e [][]int) *LCA {
+	n := len(e)
+	lca := new(LCA)
+	lca.parent = make([]int, n)
+	lca.dist = make([]int, n)
+	lca.dfs(s, e)
+	prev := make([]int, n)
+	copy(prev, lca.parent)
+	lca.ancestors = make([][]int, 1)
+	lca.ancestors[0] = make([]int, n)
+	copy(lca.ancestors[0], prev)
+	md := lca.max(lca.dist)
+	for d := 1; d < md; d <<= uint(1) {
+		next := make([]int, n)
+		for i := 0; i < n; i++ {
+			next[i] = prev[prev[i]]
+		}
+		lca.ancestors = append(lca.ancestors, next)
+		copy(prev, next)
+	}
+	return lca
+}
+func (lca *LCA) dfs(s int, e [][]int) {
+	n := len(e)
+	for i := 0; i < n; i++ {
+		lca.parent[i] = -1
+		lca.dist[i] = -1
+	}
+	lca.parent[s] = s
+	lca.dist[s] = 0
+	q := make([]int, 1, n)
+	q[0] = s
+	for len(q) != 0 {
+		idx := q[0]
+		q = q[1:]
+		for _, v := range e[idx] {
+			if lca.parent[v] == -1 {
+				lca.parent[v] = idx
+				lca.dist[v] = lca.dist[idx] + 1
+				q = append(q, v)
+			}
+		}
+	}
+}
+func (lca *LCA) max(a []int) int {
+	ret := -int(1e+18)
+	for _, v := range a {
+		if v > ret {
+			ret = v
+		}
+	}
+	return ret
+}
+func (lca *LCA) GetLCA(u, v int) int {
+	du, dv := lca.dist[u], lca.dist[v]
+	if du > dv {
+		u, v = v, u
+		du, dv = dv, du
+	}
+	tu := u
+	tv := lca.Upstream(v, dv-du)
+	if u == tv {
+		return u
+	}
+	for k := bits.Len(uint(du)) - 1; k >= 0; k-- {
+		mu := lca.ancestors[k][tu]
+		mv := lca.ancestors[k][tv]
+		if mu != mv {
+			tu = mu
+			tv = mv
+		}
+	}
+	a := lca.ancestors[0][tu]
+	return a
+}
+func (lca *LCA) Upstream(v, k int) int {
+	i := 0
+	for k != 0 {
+		if k&1 == 1 {
+			v = lca.ancestors[i][v]
+		}
+		k >>= 1
+		i++
+	}
+	return v
+}
+func (lca *LCA) GetDistance(u, v int) int {
+	a := lca.GetLCA(u, v)
+	return lca.dist[u] + lca.dist[v] - 2*lca.dist[a]
+}

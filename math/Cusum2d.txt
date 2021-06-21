@@ -1,0 +1,32 @@
+type Cusum2D [][]int
+
+func newCusum2D(x [][]int) Cusum2D {
+	c := Cusum2D(make([][]int, len(x)))
+	for i := 0; i < len(x); i++ {
+		c[i] = make([]int, len(x[i]))
+		copy(c[i], x[i])
+	}
+	for i := 0; i < len(x); i++ {
+		for j := 1; j < len(x[i]); j++ {
+			c[i][j] += c[i][j-1]
+		}
+	}
+	for j := 0; j < len(x[0]); j++ {
+		for i := 1; i < len(x); i++ {
+			c[i][j] += c[i-1][j]
+		}
+	}
+	return c
+}
+func (c Cusum2D) CalcSum(x1, y1, x2, y2 int) int {
+	if x1 == 0 && y1 == 0 {
+		return c[x2][y2]
+	}
+	if x1 == 0 {
+		return c[x2][y2] - c[x2][y1-1]
+	}
+	if y1 == 0 {
+		return c[x2][y2] - c[x1-1][y2]
+	}
+	return c[x2][y2] - c[x2][y1-1] - c[x1-1][y2] + c[x1-1][y1-1]
+}

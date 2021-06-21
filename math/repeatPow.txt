@@ -1,0 +1,14 @@
+func repeatPow(x, y, d int) int {
+	if y == 0 {
+		return 1
+	} else if y == 1 {
+		return x % d
+	} else {
+		z := repeatPow(x, y/2, d)
+		if y%2 == 0 {
+			return z * z % d
+		} else {
+			return z * z % d * x % d
+		}
+	}
+}

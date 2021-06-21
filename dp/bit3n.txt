@@ -1,0 +1,6 @@
+for i := 0; i < (1 << uint(n)); i++ {
+	for j := i; j > 0; j = (j - 1) & i {
+		k := i - j
+		dp[i] = min(dp[i], dp[j]+dp[k])
+	}
+}

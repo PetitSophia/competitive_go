@@ -1,0 +1,60 @@
+func kruscal(n int, list [][]int) int {
+	uf := newUnionFind(n)
+	sort.Sort(SliceSort(list))
+	distSum := 0
+	edgeNum := 0
+	for _, v := range list {
+		d := v[0]
+		a, b := v[1], v[2]
+		if !uf.same(a, b) {
+			distSum += d
+			uf.unite(a, b)
+			edgeNum++
+		}
+		if edgeNum == n-1 {
+			break
+		}
+	}
+	if edgeNum == n-1 {
+		return distSum
+	} else {
+		return -1
+	}
+}
+type UnionFind struct {
+	par []int
+}
+
+func newUnionFind(N int) *UnionFind {
+	u := new(UnionFind)
+	u.par = make([]int, N)
+	for i := range u.par {
+		u.par[i] = -1
+	}
+	return u
+}
+func (u UnionFind) root(x int) int {
+	if u.par[x] < 0 {
+		return x
+	}
+	u.par[x] = u.root(u.par[x])
+	return u.par[x]
+}
+func (u UnionFind) unite(x, y int) {
+	xr := u.root(x)
+	yr := u.root(y)
+	if xr == yr {
+		return
+	}
+	u.par[yr] += u.par[xr]
+	u.par[xr] = yr
+}
+func (u UnionFind) same(x, y int) bool {
+	if u.root(x) == u.root(y) {
+		return true
+	}
+	return false
+}
+func (u UnionFind) size(x int) int {
+	return -u.par[u.root(x)]
+}

@@ -1,0 +1,244 @@
+type Matrix struct {
+	val   [][]int
+	shape [2]int
+}
+
+func newMatrix(x [][]int) *Matrix {
+	mat := newZeroMatrix(SliceShape(x))
+	for i := 0; i < mat.shape[0]; i++ {
+		for j := 0; j < mat.shape[1]; j++ {
+			mat.val[i][j] = x[i][j]
+		}
+	}
+	return mat
+}
+func newZeroMatrix(shape [2]int) *Matrix {
+	mat := new(Matrix)
+	mat.val = make([][]int, shape[0])
+	for i := 0; i < shape[0]; i++ {
+		mat.val[i] = make([]int, shape[1])
+	}
+	mat.shape = shape
+	return mat
+}
+func newIdentityMatrix(shape [2]int) *Matrix {
+	mat := newZeroMatrix(shape)
+	for i := 0; i < shape[0]; i++ {
+		if i < shape[1] {
+			mat.val[i][i] = 1
+		}
+	}
+	return mat
+}
+func newOnesMatrix(shape [2]int) *Matrix {
+	mat := newZeroMatrix(shape)
+	for i := 0; i < shape[0]; i++ {
+		for j := 0; j < shape[1]; j++ {
+			mat.val[i][j] = 1
+		}
+	}
+	return mat
+}
+func (mat *Matrix) Copy() *Matrix {
+	ret := newZeroMatrix(mat.shape)
+	for i := 0; i < mat.shape[0]; i++ {
+		for j := 0; j < mat.shape[1]; j++ {
+			ret.val[i][j] = mat.val[i][j]
+		}
+	}
+	return ret
+}
+func (mat *Matrix) Set(i, j, k int) {
+	mat.val[i][j] = k
+}
+func (mat *Matrix) Get(i, j int) int {
+	return mat.val[i][j]
+}
+func (mat *Matrix) Transpose() *Matrix {
+	ret := newZeroMatrix([2]int{mat.shape[1], mat.shape[0]})
+	for i := 0; i < mat.shape[0]; i++ {
+		for j := 0; j < mat.shape[1]; j++ {
+			ret.val[j][i] = mat.val[i][j]
+		}
+	}
+	return ret
+}
+func (mat *Matrix) IntAdd(x int) {
+	for i := 0; i < mat.shape[0]; i++ {
+		for j := 0; j < mat.shape[1]; j++ {
+			mat.val[i][j] += x
+		}
+	}
+}
+func (mat *Matrix) IntMul(x int) {
+	for i := 0; i < mat.shape[0]; i++ {
+		for j := 0; j < mat.shape[1]; j++ {
+			mat.val[i][j] *= x
+		}
+	}
+}
+func (mat *Matrix) IntMod(m int) {
+	for i := 0; i < mat.shape[0]; i++ {
+		for j := 0; j < mat.shape[1]; j++ {
+			mat.val[i][j] = Mod(mat.val[i][j], m)
+		}
+	}
+}
+func (mat *Matrix) AllApplyFunc(f func(x int) int) {
+	for i := 0; i < mat.shape[0]; i++ {
+		for j := 0; j < mat.shape[1]; j++ {
+			mat.val[i][j] = f(mat.val[i][j])
+		}
+	}
+}
+func (mat *Matrix) Add(m *Matrix) error {
+	if mat.shape != m.shape {
+		return errors.New("Add: shape mismatch")
+	}
+	for i := 0; i < mat.shape[0]; i++ {
+		for j := 0; j < mat.shape[1]; j++ {
+			mat.val[i][j] += m.val[i][j]
+		}
+	}
+	return nil
+}
+func (mat *Matrix) Sub(m *Matrix) error {
+	if mat.shape != m.shape {
+		return errors.New("Sub: shape mismatch")
+	}
+	for i := 0; i < mat.shape[0]; i++ {
+		for j := 0; j < mat.shape[1]; j++ {
+			mat.val[i][j] -= m.val[i][j]
+		}
+	}
+	return nil
+}
+func (mat *Matrix) Mul(m *Matrix) error {
+	if mat.shape != m.shape {
+		return errors.New("Mul: shape mismatch")
+	}
+	for i := 0; i < mat.shape[0]; i++ {
+		for j := 0; j < mat.shape[1]; j++ {
+			mat.val[i][j] *= m.val[i][j]
+		}
+	}
+	return nil
+}
+func (mat *Matrix) Div(m *Matrix) error {
+	if mat.shape != m.shape {
+		return errors.New("Div: shape mismatch")
+	}
+	for i := 0; i < mat.shape[0]; i++ {
+		for j := 0; j < mat.shape[1]; j++ {
+			mat.val[i][j] /= m.val[i][j]
+		}
+	}
+	return nil
+}
+func (mat *Matrix) Mod(m *Matrix) error {
+	if mat.shape != m.shape {
+		return errors.New("Mod: shape mismatch")
+	}
+	for i := 0; i < mat.shape[0]; i++ {
+		for j := 0; j < mat.shape[1]; j++ {
+			mat.val[i][j] %= m.val[i][j]
+		}
+	}
+	return nil
+}
+func (mat *Matrix) MatMul(m *Matrix) (*Matrix, error) {
+	if mat.shape[1] != m.shape[0] {
+		return nil, errors.New("MatMul: shape mismatch")
+	}
+	ret := newZeroMatrix([2]int{mat.shape[0], m.shape[1]})
+	for i := 0; i < mat.shape[0]; i++ {
+		for k := 0; k < m.shape[1]; k++ {
+			for j := 0; j < mat.shape[1]; j++ {
+				ret.val[i][k] += mat.val[i][j] * m.val[j][k]
+			}
+		}
+	}
+	return ret, nil
+}
+func (mat *Matrix) ModMatMul(m *Matrix, d int) (*Matrix, error) {
+	if mat.shape[1] != m.shape[0] {
+		return nil, errors.New("ModMatMul: shape mismatch")
+	}
+	ret := newZeroMatrix([2]int{mat.shape[0], m.shape[1]})
+	for i := 0; i < mat.shape[0]; i++ {
+		for k := 0; k < m.shape[1]; k++ {
+			for j := 0; j < mat.shape[1]; j++ {
+				ret.val[i][k] += mat.val[i][j] * m.val[j][k] % d
+				ret.val[i][j] %= d
+			}
+		}
+	}
+	return ret, nil
+}
+func (mat *Matrix) MatPow(x, d int) (*Matrix, error) {
+	if mat.shape[0] != mat.shape[1] {
+		return nil, errors.New("MatPow: not square matrix")
+	}
+	ret := newIdentityMatrix(mat.shape)
+	mul := mat.Copy()
+	for i := 0; (1 << uint(i)) <= x; i++ {
+		if (x>>uint(i))&1 == 1 {
+			ret, _ = ret.ModMatMul(mul, d)
+		}
+		mul, _ = mul.ModMatMul(mul, d)
+	}
+	return ret, nil
+}
+func (m *Matrix) Det(d int) int {
+	n := m.shape[0]
+	mat := m.Copy()
+	det := 1
+	for i := 0; i < n; i++ {
+		pos := -1
+		for j := i; j < n; j++ {
+			if mat.val[j][i] != 0 {
+				pos = j
+				break
+			}
+		}
+		if pos == -1 {
+			det = 0
+			break
+		}
+		if pos != i {
+			det = d - det
+			for j := i; j < n; j++ {
+				mat.val[i][j], mat.val[pos][j] = mat.val[pos][j], mat.val[i][j]
+			}
+		}
+		det *= mat.val[i][i]
+		det %= d
+		a := modinv(mat.val[i][i], d)
+		for j := i + 1; j < n; j++ {
+			c := a * mat.val[j][i] % d
+			for k := 0; k < n; k++ {
+				mat.val[j][k] -= mat.val[i][k] * c % d
+				if mat.val[j][k] < 0 {
+					mat.val[j][k] += d
+				}
+			}
+		}
+	}
+	return det
+}
+func SliceShape(sl [][]int) [2]int {
+	ret := [2]int{0, 0}
+	ret[0] = len(sl)
+	if ret[0] == 0 {
+		return ret
+	}
+	ret[1] = len(sl[0])
+	return ret
+}
+func Mod(x, y int) int {
+	x %= y
+	if x < 0 {
+		x += y
+	}
+	return x
+}

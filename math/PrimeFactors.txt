@@ -1,0 +1,34 @@
+func PrimeFactors(n int) []int {
+	pfs := make([]int, 0)
+	for n%2 == 0 {
+		pfs = append(pfs, 2)
+		n = n / 2
+	}
+	for i := 3; i*i <= n; i = i + 2 {
+		for n%i == 0 {
+			pfs = append(pfs, i)
+			n = n / i
+		}
+	}
+	if n > 2 {
+		pfs = append(pfs, n)
+	}
+	return pfs
+}
+func PrimeFactorsM(n int) map[int]int {
+	pfs := make(map[int]int)
+	for n%2 == 0 {
+		pfs[2]++
+		n = n / 2
+	}
+	for i := 3; i*i <= n; i = i + 2 {
+		for n%i == 0 {
+			pfs[i]++
+			n = n / i
+		}
+	}
+	if n > 2 {
+		pfs[n]++
+	}
+	return pfs
+}

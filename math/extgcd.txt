@@ -1,0 +1,15 @@
+func extGcd(a, b int) (int, int, int) {
+	x, y := 0, 0
+	var eg func(p, q int, x, y *int) int
+	eg = func(p, q int, x, y *int) int {
+		if q == 0 {
+			*x, *y = 1, 0
+			return p
+		}
+		d := eg(q, p%q, y, x)
+		*y = (*y) - p/q*(*x)
+		return d
+	}
+	d := eg(a, b, &x, &y)
+	return d, x, y
+}

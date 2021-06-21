@@ -1,0 +1,21 @@
+func EulerTour(root int, edges [][]int) ([]int, []int, []int, []int) {
+	tour := make([]int, 0, 2*len(edges)-1)
+	begin, end := make([]int, len(edges)), make([]int, len(edges))
+	d := make([]int, len(edges))
+	c := 0
+	var f func(i int)
+	f = func(i int) {
+		begin[i] = c
+		tour = append(tour, i)
+		c++
+		for _, v := range edges[i] {
+			d[v] = d[i] + 1
+			f(v)
+			tour = append(tour, i)
+			c++
+		}
+		end[i] = c - 1
+	}
+	f(root)
+	return tour, begin, end, d
+}

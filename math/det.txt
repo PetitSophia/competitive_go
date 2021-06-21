@@ -1,0 +1,41 @@
+func calcdet(input [][]int, m int) int {
+	n := len(input)
+	mat := make([][]int, n)
+	for i := 0; i < n; i++ {
+		mat[i] = make([]int, n)
+		copy(mat[i], input[i])
+	}
+	det := 1
+	for i := 0; i < n; i++ {
+		pos := -1
+		for j := i; j < n; j++ {
+			if mat[j][i] != 0 {
+				pos = j
+				break
+			}
+		}
+		if pos == -1 {
+			det = 0
+			break
+		}
+		if pos != i {
+			det = m - det
+			for j := i; j < n; j++ {
+				mat[i][j], mat[pos][j] = mat[pos][j], mat[i][j]
+			}
+		}
+		det *= mat[i][i]
+		det %= m
+		a := modinv(mat[i][i], m)
+		for j := i + 1; j < n; j++ {
+			c := a * mat[j][i] % m
+			for k := 0; k < n; k++ {
+				mat[j][k] -= mat[i][k] * c % m
+				if mat[j][k] < 0 {
+					mat[j][k] += m
+				}
+			}
+		}
+	}
+	return det
+}
